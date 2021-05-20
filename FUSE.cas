@@ -1,0 +1,40 @@
+protocol FUSE;
+identifiers
+IoT, IHG, HMS, VDR : user;          
+Update, UUID1V, UUID1H, TypePs, UUID2I, UUID2H, Verify, CH1, CH2, MSG, IDPSiot: number;
+Kvh, Kih, GrpKy : symmetric_key; 
+HMAC, Proof : function; 
+
+messages
+1. VDR -> HMS : Update, UUID1V, {IDPSiot, TypePs}Kvh
+2. HMS -> IHG : Update, UUID1H, {IDPSiot, TypePs}GrpKy
+3. IHG => IoT : {IDPSiot}GrpKy
+4. IoT => IHG : {Verify}Kih
+5. IHG -> HMS : Update,UUID1H,{TypePs}GrpKy,UUID2I,{Verify}Kih
+6. HMS -> VDR : Update,UUID1V,{TypePs}Kvh,UUID2H,{Verify}Kvh
+7. VDR -> HMS : Update,UUID1V,{TypePs}Kvh,UUID2H,{CH1}Kvh
+8. HMS -> IHG : Update,UUID1H,{TypePs}GrpKy,UUID2I,{CH1}Kih
+9. IHG => IoT : {CH1}Kih
+10. IoT => IHG : {Proof(CH1), CH2, HMAC(CH2)}Kih
+11. IHG -> HMS : Update,UUID1H,{TypePs}GrpKy,UUID2I,{Proof(CH1), CH2, HMAC(CH2)}Kih
+12. HMS -> VDR : Update,UUID1V,{TypePs}Kvh,UUID2H,{Proof(CH1), CH2, HMAC(CH2)}Kvh
+13. VDR -> HMS : Update,UUID1V,{TypePs}Kvh,UUID2H,{Proof(CH2), MSG, HMAC(MSG)}Kvh
+14. HMS -> IHG : Update,UUID1H,{TypePs}GrpKy,UUID2I,{Proof(CH2), MSG, HMAC(MSG)}Kih
+15. IHG => IoT : {Proof(CH2), MSG, HMAC(MSG)}Kih
+
+knowledge
+IoT	: IoT, IHG, HMS, VDR, Kih, Verify, IDPSiot, TypePs, Update;
+IHG	: IoT, IHG, HMS, VDR, GrpKy, IDPSiot, TypePs, Update;
+HMS	: IoT, IHG, HMS, VDR, Kvh, Kih, GrpKy, Verify, Update;
+VDR	: IoT, IHG, HMS, VDR, Kvh, Verify, IDPSiot, TypePs, Update;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+session_instances
+[IoT:iot, IHG:ihg, HMS:hms, VDR:vendor, Kvh: kvh, Kih: kih, GrpKy:grpkey, Update:update, Verify: verify, MSG: msg, IDPSiot: idpsIot, TypePs: type];
+
+intruder_knowledge
+vendor, ihg;
+
+goal
+ secrecy_of MSG [VDR,IoT];
+

@@ -1,0 +1,60 @@
+protocol ISSUANCE;
+
+identifiers
+
+Issuer, IoT	: user;
+
+N1, N2, Cred1, Cred2, SigmaCL, Mi, S, U: number; 
+
+Ka, Kb	: public_key;
+
+Proof	: function;
+
+
+
+messages
+
+1. Issuer -> IoT : Ka
+
+2. IoT -> Issuer : Kb
+
+3. Issuer -> IoT : {N1}Kb
+
+4. IoT -> Issuer : {Proof(Cred1), U, N2}Ka
+
+5. Issuer -> IoT : {Proof(Cred2), SigmaCL, Mi, S}Kb
+
+
+
+knowledge
+
+Issuer : Issuer, IoT, Ka, Kb, Cred2;
+
+IoT    : Issuer, IoT, Ka, Kb, Cred1;
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+session_instances
+
+[Issuer:issuer, IoT:iot, Ka:ka, Kb:kb];
+
+
+
+intruder_knowledge
+
+iot, issuer, ka, kb;
+
+
+
+goal
+
+ Issuer authenticates IoT on Cred1;
+
+ IoT authenticates Issuer on Cred2;
+
+ secrecy_of Mi [Issuer,IoT];
+
+ secrecy_of S [Issuer,IoT];
+
